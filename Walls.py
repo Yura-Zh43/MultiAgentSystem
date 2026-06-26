@@ -46,7 +46,7 @@ class Walls():
         self.dists = np.empty()
         self.update_data()'''
 
-    def get_normal_vectors(self, pos, direction, radius, is_sticking, eps=0):
+    def get_normal_vectors(self, pos, d, radius, is_sticking, eps=1e-2):
         if is_sticking:
             radius2 = (radius + eps)**2
         else:
@@ -54,11 +54,13 @@ class Walls():
 
         ans = np.empty([0, 2])
         wall_inds = np.empty(0, dtype=int)
-        dot_prods = direction @ self.normal_vectors_T
+        dot_prods = d @ self.normal_vectors_T
         dot_prods[np.abs(dot_prods) < 1e-8] = 0
 
         for i, x in enumerate(dot_prods):
+        #for i in range(len(self.normal_vectors)):
             if x <= 0 and np.dot(pos - self.walls[i][0], self.normal_vectors_T[:,i]) >= 0:
+            #if np.dot(pos - self.walls[i][0], self.normal_vectors_T[:,i]) >= 0:
                 vecs = pos - self.walls[i]
                 dist1 = np.dot(vecs[0], vecs[0])
                 dist2 = np.dot(vecs[1], vecs[1])

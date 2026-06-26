@@ -9,6 +9,10 @@ from sklearn import cluster as cl
 class Model(ms.Model):
     def __init__(self, n_agents, points, n_threads, seed=None):
         super().__init__(seed=seed)
+
+        self.is_end = False
+        self.is_end1 = False
+
         self.grid = ms.space.ContinuousSpace(20, 10, torus=False)
 
         #self.repulsion_radius = 0.3
@@ -17,7 +21,6 @@ class Model(ms.Model):
         self.repulsion_radius = self.min_radius * 2
 
         self.viewing_radius = self.min_radius * 4
-        self.viewing_radius = self.min_radius * 3
         #self.viewing_radius = 100
         #self.viewing_radius = 0.1
 
@@ -27,9 +30,9 @@ class Model(ms.Model):
         self.coef_self_dir = 0.1#0.5
 
         #'''
-        self.min_radius = 0.3#0.1 0.2 0.3
-        self.viewing_radius = 0.8#0.6 0.7 0.8
-        self.coef_self_dir = 0.9#0.1 0.3 0.5 0.7 0.9
+        self.min_radius = 0.2#0.1 0.2 0.3
+        self.viewing_radius = 0.7#0.6 0.7 0.8
+        self.coef_self_dir = 0.5#0.1 0.3 0.5 0.7 0.9
         #'''
         '''
         self.min_radius = 0.3#0.1 0.2 0.3
@@ -56,9 +59,9 @@ class Model(ms.Model):
             #    coords = np.array((self.random.uniform(9, 10), self.random.uniform(5, 7)))
             #else:
             #    coords = np.array((self.random.uniform(6, 8), self.random.uniform(9, 10)))
-            a.center = coords
-            a.dir = self.grid.get_heading(a.center, self.end_point)
+            a.dir = self.grid.get_heading(coords, self.end_point)
             a.dir = a.dir / np.linalg.norm(a.dir)
+            a.d = a.dir
             self.grid.place_agent(a, coords)
 
         '''
@@ -127,11 +130,17 @@ class Model(ms.Model):
         #    self.end_point) < 2 * self.speed:
         #    self.end_point = np.array((self.random.uniform(1, 9), self.random.uniform(1, 9)))
 
-        agents = self.neighbors(self.end_point, self.grid.agents, np.sqrt(len(self.grid.agents)) * self.min_radius, True)
+        agents = self.neighbors(self.end_point, self.grid.agents, np.sqrt(len(self.grid.agents)) * 2 * self.min_radius, True)
+        agents1 = self.neighbors(self.end_point, self.grid.agents, np.sqrt(len(self.grid.agents)) * self.min_radius, True)
         #if self.grid.get_distance(np.mean(self.grid.agents.get('pos'), axis=0),\
         #    self.end_point) < self.min_radius and len(self.grid.agents) == len(agents):
-        if len(self.grid.agents) == len(agents):
+        if not self.is_end and len(self.grid.agents) == len(agents):
             print(self.steps)
+            self.is_end = True
+
+        if len(self.grid.agents) == len(agents1):
+            print(self.steps)
+            self.is_end1 = True
             self.end_point = np.array((self.random.uniform(1, 9), self.random.uniform(1, 9)))
         #'''
 
